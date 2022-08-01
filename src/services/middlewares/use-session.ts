@@ -17,7 +17,7 @@ export const useSession: Handle = async ({ event, resolve }) => {
 	}
 
 	let session: Session;
-	if (!sessionId || !keys.verify(sessionId, sig)) {
+	if (!keys.verify(sessionId, sig)) {
 		session = await createSession();
 	} else {
 		session = (await getSession(sessionId)) || { id: '', userId: '', username: '' };

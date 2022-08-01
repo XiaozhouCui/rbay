@@ -12,7 +12,7 @@
 		views?: number;
 	}
 
-	export let item: any;
+	export let item: ItemSummary;
 
 	$: endingAt =
 		typeof item.endingAt === 'number'

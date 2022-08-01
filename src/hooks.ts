@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import '$services/redis/client';
-import boxen from 'boxen';
 import { DateTime } from 'luxon';
+import boxen from 'boxen';
 import type { Handle, GetSession } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { useCachePage, useSession, useErrors } from '$services/middlewares';
@@ -24,8 +24,5 @@ export const getSession: GetSession = (event) => {
 };
 
 DateTime.prototype.toString = function () {
-	return this.toMillis();
-};
-DateTime.prototype.toJSON = function () {
 	return this.toMillis();
 };

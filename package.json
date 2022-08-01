@@ -17,7 +17,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^1.0.0-next.17",
-		"@sveltejs/kit": "1.0.0-next.282",
+		"@sveltejs/kit": "^1.0.0-next.282",
 		"autoprefixer": "^10.4.2",
 		"postcss": "^8.4.6",
 		"prettier": "^2.4.1",
@@ -39,7 +39,6 @@
 		"@types/ioredis": "^4.28.8",
 		"@types/keygrip": "^1.0.2",
 		"@types/luxon": "^2.0.9",
-		"axios": "^0.26.1",
 		"boxen": "^6.2.1",
 		"chart.js": "^3.7.1",
 		"chartjs-adapter-luxon": "^1.1.0",

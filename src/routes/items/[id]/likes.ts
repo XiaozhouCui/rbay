@@ -16,11 +16,7 @@ export const post: RequestHandler<any, any> = async ({ params, locals }) => {
 	return {
 		status: 201,
 		body: {
-			item: {
-				...item,
-				endingAt: item.endingAt.toMillis(),
-				createdAt: item.createdAt.toMillis()
-			}
+			item
 		}
 	};
 };
@@ -39,11 +35,7 @@ export const del: RequestHandler<any, any> = async ({ params, locals }) => {
 	return {
 		status: 201,
 		body: {
-			item: {
-				...item,
-				endingAt: item.endingAt.toMillis(),
-				createdAt: item.createdAt.toMillis()
-			}
+			item
 		}
 	};
 };

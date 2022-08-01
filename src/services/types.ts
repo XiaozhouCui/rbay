@@ -1,10 +1,5 @@
 import type { DateTime } from 'luxon';
 
-export interface Bid {
-	createdAt: DateTime;
-	amount: number;
-}
-
 export interface Item {
 	id: string;
 	name: string;
@@ -28,7 +23,6 @@ export interface CreateItemAttrs {
 	endingAt: DateTime;
 	ownerId: string;
 	highestBidUserId: string;
-	status: string;
 	price: number;
 	views: number;
 	likes: number;

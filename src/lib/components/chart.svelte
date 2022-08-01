@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Chart } from 'chart.js';
 
-	type Bid = { createdAt: string; amount: number };
+	type Bid = { createdAt: number; amount: number };
 
 	export let bidHistory: Bid[] = [];
 	let canvas: HTMLCanvasElement | null = null;

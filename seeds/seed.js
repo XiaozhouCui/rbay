@@ -15,8 +15,7 @@ import {
 	itemsByViewsKey,
 	itemsByPriceKey,
 	itemsByEndingAtKey,
-	itemsViewsKey,
-	usernamesUniqueKey
+	itemsViewsKey
 } from './seed-keys.js';
 
 const client = createClient({
@@ -27,8 +26,8 @@ const client = createClient({
 	password: process.env.REDIS_PW
 });
 
-const serializeHistory = (amount, createdAt) => {
-	return `${amount}:${createdAt}`;
+const serializeHistory = (createdAt, amount) => {
+	return `${createdAt}:${amount}`;
 };
 
 const run = async () => {
@@ -45,7 +44,7 @@ const run = async () => {
 
 		const item = {
 			..._item,
-			id: _item.id.replace('items#', ''),
+			id: _item.id,
 			views: _item.views.length,
 			likes: _item.likes.length,
 			createdAt: DateTime.now().toMillis(),
@@ -85,9 +84,6 @@ const run = async () => {
 
 	const userPromises = _.flatMap(content.users, (user) => {
 		return [
-			client.sAdd(usernamesUniqueKey(), {
-				value: user.username
-			}),
 			client.zAdd(usernamesKey(), {
 				value: user.username,
 				score: parseInt(user.id, 16)
@@ -102,7 +98,7 @@ const run = async () => {
 	const bidPromises = _.flatMap(content.bids, (bid) => {
 		return [
 			client.sAdd(usersBidsKey(bid.userId), bid.itemId),
-			client.rPush(bidHistoryKey(bid.itemId), serializeHistory(bid.amount, bid.time)),
+			client.rPush(bidHistoryKey(bid.itemId), serializeHistory(bid.time, bid.amount)),
 			client.zIncrBy(itemsByBidsKey(), 1, bid.itemId),
 			client.zAdd(itemsByPriceKey(), { score: bid.amount, value: bid.itemId })
 		];
