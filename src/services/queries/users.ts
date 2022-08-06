@@ -15,7 +15,7 @@ export const createUser = async (attrs: CreateUserAttrs) => {
   const id = genId();
 
   // see if the usuername is already in the set of unsernames
-  // redis: SISMEMBER
+  // redis: SISMEMBER usernames:unique <username>
   const exists = await client.sIsMember(usernamesUniqueKey(), attrs.username);
 
   // if so, throw an error
@@ -25,6 +25,7 @@ export const createUser = async (attrs: CreateUserAttrs) => {
 
   // otherwise, continue to create user account
   await client.hSet(usersKey(id), serialize(attrs));
+  // add to redis usernames set: SADD usernames:unique <username> (should return 1)
   await client.sAdd(usernamesUniqueKey(), attrs.username);
 
   return id;
