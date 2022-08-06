@@ -20,6 +20,10 @@
 	let message = '';
 
 	$: err = amount && '';
+	$: endingAt =
+		typeof item.endingAt === 'object'
+			? item.endingAt.toRelative().replace('in ', '')
+			: DateTime.fromMillis(item.endingAt).toRelative().replace('in ', '');
 
 	async function onClickLike() {
 		if (!$session.userId) {
@@ -86,11 +90,7 @@
 				<div class="flex justify-between">
 					<Stat label="High Bid" value={'$' + item.price.toFixed(2)} />
 					<Stat bg="bg-amber-500" label="# Bids" value={item.bids} />
-					<Stat
-						bg="bg-violet-500"
-						label="Ending In"
-						value={DateTime.fromMillis(item.endingAt).toRelative().replace('in ', '')}
-					/>
+					<Stat bg="bg-violet-500" label="Ending In" value={endingAt} />
 				</div>
 
 				{#if userHasHighBid}
