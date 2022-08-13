@@ -1,12 +1,19 @@
 import { itemsKey, userLikesKey } from '$services/keys';
 import { client } from '$services/redis';
+import { getItems } from './items';
 
 export const userLikesItem = async (itemId: string, userId: string) => {
   // SISMEMBER users:likes#userId itemId
   return client.sIsMember(userLikesKey(userId), itemId);
 };
 
-export const likedItems = async (userId: string) => {};
+export const likedItems = async (userId: string) => {
+  // fetch all the item IDs from this user's liked set
+  const ids = await client.sMembers(userLikesKey(userId));
+
+  // fetch all the item hashes with those IDs and return as an array
+  return getItems(ids);
+};
 
 export const likeItem = async (itemId: string, userId: string) => {
   // SADD users:likes#userId itemId (should return 1)
@@ -30,4 +37,9 @@ export const unlikeItem = async (itemId: string, userId: string) => {
   }
 };
 
-export const commonLikedItems = async (userOneId: string, userTwoId: string) => {};
+export const commonLikedItems = async (userOneId: string, userTwoId: string) => {
+  // find set intersection
+  const ids = await client.sInter([userLikesKey(userOneId), userLikesKey(userTwoId)]);
+
+  return getItems(ids);
+};
