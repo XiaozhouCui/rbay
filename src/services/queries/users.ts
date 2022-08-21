@@ -3,8 +3,24 @@ import { genId } from '$services/utils';
 import { client } from '$services/redis';
 import { usersKey, usernamesUniqueKey, usernamesKey } from '$services/keys';
 
-// use 'usernames' sorted set to look up their ID
-export const getUserByUsername = async (username: string) => {};
+export const getUserByUsername = async (username: string) => {
+  // use the username arg to look up the persons User ID with the 'usernames' sorted set
+  const decimalId = await client.zScore(usernamesKey(), username);
+
+  // make sure we got an ID from the lookup
+  if (!decimalId) {
+    throw new Error('User does not exist');
+  }
+
+  // take the ID and convert it back to hexadecimal string
+  const id = decimalId.toString(16);
+
+  // use the ID to look up the user's hash
+  const user = await client.hGetAll(usersKey(id));
+
+  // deserialize and return the hash
+  return deserialize(id, user);
+};
 
 // Once we get the user ID, use the ID to get the user's hash, then compare passwords
 export const getUserById = async (id: string) => {
