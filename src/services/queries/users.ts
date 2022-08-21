@@ -3,6 +3,7 @@ import { genId } from '$services/utils';
 import { client } from '$services/redis';
 import { usersKey, usernamesUniqueKey, usernamesKey } from '$services/keys';
 
+// log in functionality here
 export const getUserByUsername = async (username: string) => {
   // use the username arg to look up the persons User ID with the 'usernames' sorted set
   const decimalId = await client.zScore(usernamesKey(), username);
@@ -29,6 +30,7 @@ export const getUserById = async (id: string) => {
   return deserialize(id, user);
 };
 
+// sign up functionality here
 export const createUser = async (attrs: CreateUserAttrs) => {
   const id = genId(); // hexadecimal string, e.g. "3a9c03e7f2"
 

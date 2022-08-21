@@ -2,7 +2,7 @@ import type { CreateItemAttrs } from '$services/types';
 import { client } from '$services/redis';
 import { serialize } from './serialize';
 import { genId } from '$services/utils';
-import { itemsKey } from '$services/keys';
+import { itemsKey, itemsByViewsKey } from '$services/keys';
 import { deserialize } from './deserialize';
 
 export const getItem = async (id: string) => {
@@ -36,7 +36,16 @@ export const createItem = async (attrs: CreateItemAttrs) => {
   // convert DateTime into unix time
   const serialized = serialize(attrs);
 
-  await client.hSet(itemsKey(id), serialized);
+  // use pipeline to process multiple commands
+  await Promise.all([
+    // create the item's hash
+    client.hSet(itemsKey(id), serialized),
+    // add a record to the 'items:views' sorted set
+    client.zAdd(itemsByViewsKey(), {
+      value: id,
+      score: 0, // a new item initially has 0 views
+    }),
+  ]);
 
   return id;
 };
