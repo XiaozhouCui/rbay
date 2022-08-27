@@ -22,7 +22,7 @@ export const itemsByEndingTime = async (
     }
   );
 
-  // loop through all item ids to get full item details (item hashes) as serialized data
+  // loop through all item ids to get relational item details (item hashes) as serialized data
   const results = await Promise.all(ids.map((id) => client.hGetAll(itemsKey(id))));
 
   // return the deserialized items
