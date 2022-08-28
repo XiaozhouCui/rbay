@@ -20,7 +20,7 @@ export const itemsByViews = async (order: 'DESC' | 'ASC' = 'DESC', offset = 0, c
     LIMIT: { offset, count }, // skip 0 items and get the next 10 items
   });
 
-  console.log(results); // ['ff7ad9', 'Chair', '7', '1661050862930', '9.99', nextItem...];
+  // console.log(results); // ['ff7ad9', 'Chair', '7', '1661050862930', '9.99', nextItem...];
 
   // parse the sort output
   const items = [];
