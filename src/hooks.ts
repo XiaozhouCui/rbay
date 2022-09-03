@@ -26,3 +26,7 @@ export const getSession: GetSession = (event) => {
 DateTime.prototype.toString = function () {
 	return this.toMillis();
 };
+
+DateTime.prototype.toJSON = function () {
+	return this.toMillis();
+};

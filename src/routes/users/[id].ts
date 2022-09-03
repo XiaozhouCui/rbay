@@ -16,8 +16,20 @@ export const get: RequestHandler<Params, any> = async ({ params, locals }) => {
 	return {
 		body: {
 			username: user.username,
-			sharedItems,
-			likedItems: liked
+			sharedItems: (sharedItems || []).map((item) => {
+				return {
+					...item,
+					endingAt: item.endingAt.toMillis(),
+					createdAt: item.createdAt.toMillis()
+				};
+			}),
+			likedItems: (liked || []).map((item) => {
+				return {
+					...item,
+					endingAt: item.endingAt.toMillis(),
+					createdAt: item.createdAt.toMillis()
+				};
+			})
 		}
 	};
 };

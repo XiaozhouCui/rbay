@@ -1,5 +1,10 @@
 import type { DateTime } from 'luxon';
 
+export interface Bid {
+	createdAt: DateTime;
+	amount: number;
+}
+
 export interface Item {
 	id: string;
 	name: string;

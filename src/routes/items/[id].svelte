@@ -59,6 +59,7 @@
 		[{ item, userLikes, history, similarItems, userHasHighBid }] = await get(
 			`/items/${$page.params.id}`
 		);
+
 		amount = '';
 		loading = false;
 		message = 'Success! You have the winning bid';
