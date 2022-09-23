@@ -2,9 +2,22 @@ import { bidHistoryKey } from '$services/keys';
 import { client } from '$services/redis';
 import type { CreateBidAttrs } from '$services/types';
 import { DateTime } from 'luxon';
+import { getItem } from './items/items';
 
 // Add a new record into the item's bid history LIST
 export const createBid = async (attrs: CreateBidAttrs) => {
+  const item = await getItem(attrs.itemId);
+  // validating bids
+  if (!item) {
+    throw new Error('Item does not exist');
+  }
+  if (item.price >= attrs.amount) {
+    throw new Error('Bid too low');
+  }
+  if (item.endingAt.diff(DateTime.now()).toMillis() < 0) {
+    throw new Error('Item closed to bidding');
+  }
+
   const serialized = serializeHistory(attrs.amount, attrs.createdAt.toMillis());
   // RPUSH history#a1 25:16612345095
   return client.rPush(bidHistoryKey(attrs.itemId), serialized);
