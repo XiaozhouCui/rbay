@@ -1,4 +1,4 @@
-import { bidHistoryKey } from '$services/keys';
+import { bidHistoryKey, itemsKey } from '$services/keys';
 import { client } from '$services/redis';
 import type { CreateBidAttrs } from '$services/types';
 import { DateTime } from 'luxon';
@@ -19,8 +19,17 @@ export const createBid = async (attrs: CreateBidAttrs) => {
   }
 
   const serialized = serializeHistory(attrs.amount, attrs.createdAt.toMillis());
-  // RPUSH history#a1 25:16612345095
-  return client.rPush(bidHistoryKey(attrs.itemId), serialized);
+
+  return Promise.all([
+    // RPUSH history#a1 25:16612345095
+    client.rPush(bidHistoryKey(attrs.itemId), serialized),
+    // update item hash with bids
+    client.hSet(itemsKey(item.id), {
+      bids: item.bids + 1,
+      price: attrs.amount,
+      highestBidUserId: attrs.userId,
+    }),
+  ]);
 };
 
 // Returns bid history for a single item in order of increasing time
