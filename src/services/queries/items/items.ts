@@ -2,7 +2,7 @@ import type { CreateItemAttrs } from '$services/types';
 import { client } from '$services/redis';
 import { serialize } from './serialize';
 import { genId } from '$services/utils';
-import { itemsKey, itemsByViewsKey, itemsByEndingAtKey } from '$services/keys';
+import { itemsKey, itemsByPriceKey, itemsByViewsKey, itemsByEndingAtKey } from '$services/keys';
 import { deserialize } from './deserialize';
 
 export const getItem = async (id: string) => {
@@ -36,7 +36,7 @@ export const createItem = async (attrs: CreateItemAttrs) => {
   // convert DateTime into unix time
   const serialized = serialize(attrs);
 
-  // use pipeline to process multiple commands
+  // use pipeline to process multiple commands when creating an item
   await Promise.all([
     // create the item's hash
     client.hSet(itemsKey(id), serialized),
@@ -49,6 +49,11 @@ export const createItem = async (attrs: CreateItemAttrs) => {
     client.zAdd(itemsByEndingAtKey(), {
       value: id,
       score: attrs.endingAt.toMillis(), // unix timestamp
+    }),
+    // add a record to the 'items:price' sorted set for the price of all items
+    client.zAdd(itemsByPriceKey(), {
+      value: id,
+      score: 0, // initial price is 0 before first bid
     }),
   ]);
 
