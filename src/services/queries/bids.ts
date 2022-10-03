@@ -6,30 +6,38 @@ import { getItem } from './items/items';
 
 // Add a new record into the item's bid history LIST
 export const createBid = async (attrs: CreateBidAttrs) => {
-  const item = await getItem(attrs.itemId);
-  // validating bids
-  if (!item) {
-    throw new Error('Item does not exist');
-  }
-  if (item.price >= attrs.amount) {
-    throw new Error('Bid too low');
-  }
-  if (item.endingAt.diff(DateTime.now()).toMillis() < 0) {
-    throw new Error('Item closed to bidding');
-  }
+  // Transaction: create a new connection to redis
+  return client.executeIsolated(async (isolatedClient) => {
+    // Transaction: WATCH itemId, if item hash changed then transaction will fail
+    await isolatedClient.watch(itemsKey(attrs.itemId));
+    const item = await getItem(attrs.itemId);
+    // validating bids
+    if (!item) {
+      throw new Error('Item does not exist');
+    }
+    if (item.price >= attrs.amount) {
+      throw new Error('Bid too low');
+    }
+    if (item.endingAt.diff(DateTime.now()).toMillis() < 0) {
+      throw new Error('Item closed to bidding');
+    }
 
-  const serialized = serializeHistory(attrs.amount, attrs.createdAt.toMillis());
+    const serialized = serializeHistory(attrs.amount, attrs.createdAt.toMillis());
 
-  return Promise.all([
-    // RPUSH history#a1 25:16612345095
-    client.rPush(bidHistoryKey(attrs.itemId), serialized),
-    // update item hash with bids
-    client.hSet(itemsKey(item.id), {
-      bids: item.bids + 1,
-      price: attrs.amount,
-      highestBidUserId: attrs.userId,
-    }),
-  ]);
+    return (
+      isolatedClient
+        .multi() // transaction queue begin
+        // RPUSH history#a1 25:16612345095
+        .rPush(bidHistoryKey(attrs.itemId), serialized)
+        // update item hash with bids
+        .hSet(itemsKey(item.id), {
+          bids: item.bids + 1,
+          price: attrs.amount,
+          highestBidUserId: attrs.userId,
+        })
+        .exec() // transaction execute
+    );
+  });
 };
 
 // Returns bid history for a single item in order of increasing time
